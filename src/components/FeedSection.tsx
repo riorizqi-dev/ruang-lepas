@@ -16,6 +16,7 @@ import {
   PauseSvg,
   SpotifyIconSvg,
   ChevronDownSvg,
+  CloseSvg,
 } from './Icons';
 
 interface FeedSectionProps {
@@ -222,7 +223,16 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
                           <SpotifyIconSvg size={13} />
                           <span>Lagu Pilihan Penulis</span>
                         </span>
-                        <span className="text-sky-400 text-[10px] uppercase tracking-wider font-semibold">Sedang Diputar</span>
+                        <button
+                          type="button"
+                          onClick={() => togglePlay(item.id)}
+                          className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-800/80 hover:bg-rose-950/80 border border-slate-700/60 hover:border-rose-500/50 text-slate-300 hover:text-rose-200 text-[10px] font-semibold transition-all cursor-pointer"
+                          title="Tutup pemutar musik"
+                          aria-label="Tutup pemutar Spotify"
+                        >
+                          <CloseSvg size={10} />
+                          <span>Tutup</span>
+                        </button>
                       </div>
                       <div className="rounded-2xl overflow-hidden border border-sky-500/30 bg-slate-950/90 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
                         <iframe
