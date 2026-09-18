@@ -19,6 +19,7 @@ export interface Confession {
   supportsCount: number;
   userReactedRelate?: boolean;
   userReactedSupport?: boolean;
+  songTrackId?: string | null;
 }
 
 export interface DonationPreset {

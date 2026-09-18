@@ -1,16 +1,53 @@
 import React, { useState } from 'react';
 import { CategoryId } from '../types';
 import { CATEGORIES } from '../data/seedData';
-import { FlameSvg, BatterySvg, SpiralSvg, RaindropSvg, SunSvg, ShieldSvg, SendSvg } from './Icons';
+import {
+  FlameSvg,
+  BatterySvg,
+  SpiralSvg,
+  RaindropSvg,
+  SunSvg,
+  ShieldSvg,
+  SendSvg,
+  SpotifyIconSvg,
+  CloseSvg,
+} from './Icons';
 
 interface ConfessionFormProps {
-  onSubmit: (pseudonym: string, content: string, category: Exclude<CategoryId, 'all'>) => void;
+  onSubmit: (
+    pseudonym: string,
+    content: string,
+    category: Exclude<CategoryId, 'all'>,
+    songTrackId?: string | null
+  ) => void;
+}
+
+export function extractSpotifyTrackId(input: string): string | null {
+  if (!input) return null;
+  const trimmed = input.trim();
+  if (!trimmed) return null;
+
+  // Format URI: spotify:track:xxxxxxx
+  const uriMatch = trimmed.match(/^spotify:track:([a-zA-Z0-9]{15,30})$/);
+  if (uriMatch) return uriMatch[1];
+
+  // Format URL: open.spotify.com/(intl-xx/)?track/xxxxxxx(?si=...)
+  const urlMatch = trimmed.match(/open\.spotify\.com\/(?:intl-[a-zA-Z-]+\/)?track\/([a-zA-Z0-9]{15,30})/);
+  if (urlMatch) return urlMatch[1];
+
+  // Format raw ID 22 karakter
+  if (/^[a-zA-Z0-9]{22}$/.test(trimmed)) return trimmed;
+
+  return null;
 }
 
 export const ConfessionForm: React.FC<ConfessionFormProps> = ({ onSubmit }) => {
   const [pseudonym, setPseudonym] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState<Exclude<CategoryId, 'all'>>('lelah');
+  const [spotifyUrl, setSpotifyUrl] = useState('');
+  const [extractedTrackId, setExtractedTrackId] = useState<string | null>(null);
+  const [spotifyError, setSpotifyError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,6 +71,32 @@ export const ConfessionForm: React.FC<ConfessionFormProps> = ({ onSubmit }) => {
     }
   };
 
+  const handleSpotifyChange = (val: string) => {
+    setSpotifyUrl(val);
+    const trimmed = val.trim();
+
+    if (!trimmed) {
+      setExtractedTrackId(null);
+      setSpotifyError(null);
+      return;
+    }
+
+    const trackId = extractSpotifyTrackId(trimmed);
+    if (trackId) {
+      setExtractedTrackId(trackId);
+      setSpotifyError(null);
+    } else {
+      setExtractedTrackId(null);
+      setSpotifyError('Format tautan Spotify tidak valid. Contoh: https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT');
+    }
+  };
+
+  const handleClearSong = () => {
+    setSpotifyUrl('');
+    setExtractedTrackId(null);
+    setSpotifyError(null);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanContent = content.trim();
@@ -52,9 +115,17 @@ export const ConfessionForm: React.FC<ConfessionFormProps> = ({ onSubmit }) => {
     setIsSubmitting(true);
 
     setTimeout(() => {
-      onSubmit(pseudonym.trim() || 'Anonim', cleanContent, category);
+      onSubmit(
+        pseudonym.trim() || 'Anonim',
+        cleanContent,
+        category,
+        extractedTrackId || null
+      );
       setContent('');
       setPseudonym('');
+      setSpotifyUrl('');
+      setExtractedTrackId(null);
+      setSpotifyError(null);
       setIsSubmitting(false);
     }, 250);
   };
@@ -143,6 +214,64 @@ export const ConfessionForm: React.FC<ConfessionFormProps> = ({ onSubmit }) => {
                 {content.length}/{maxChars}
               </span>
             </div>
+          </div>
+
+          {/* Spotify Track Input (Optional) */}
+          <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-2">
+              <label htmlFor="spotify-input" className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <SpotifyIconSvg size={16} className="text-emerald-400" />
+                <span>Tempel Link Lagu Spotify (Opsional)</span>
+              </label>
+              {extractedTrackId && (
+                <button
+                  type="button"
+                  onClick={handleClearSong}
+                  className="flex items-center gap-1 text-[11px] text-slate-400 hover:text-rose-300 transition-colors"
+                  title="Hapus pilihan lagu"
+                >
+                  <CloseSvg size={12} />
+                  <span>Hapus Lagu</span>
+                </button>
+              )}
+            </div>
+
+            <div className="relative">
+              <input
+                id="spotify-input"
+                type="text"
+                value={spotifyUrl}
+                onChange={(e) => handleSpotifyChange(e.target.value)}
+                placeholder="https://open.spotify.com/track/..."
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700/70 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-sky-400/80 transition-all"
+              />
+            </div>
+
+            {/* Error Message if URL invalid (does not block submission) */}
+            {spotifyError && (
+              <p className="text-[11px] text-amber-300/90 font-medium">
+                {spotifyError}
+              </p>
+            )}
+
+            {/* Live Preview Embed if valid trackId found */}
+            {extractedTrackId && (
+              <div className="mt-1 flex flex-col gap-2">
+                <span className="text-[11px] font-semibold text-slate-400">
+                  Pratinjau Pemutar Lagu:
+                </span>
+                <iframe
+                  src={`https://open.spotify.com/embed/track/${extractedTrackId}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="152"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  className="rounded-xl border border-[#232b3a] shadow-lg bg-[#0a0e17]"
+                  title="Pratinjau Lagu Spotify"
+                />
+              </div>
+            )}
           </div>
 
           {/* Validation Error Message */}

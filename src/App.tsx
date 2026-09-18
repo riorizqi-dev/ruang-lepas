@@ -31,6 +31,7 @@ interface DbConfession {
   created_at: string;
   relates_count: number;
   supports_count: number;
+  song_track_id?: string | null;
 }
 
 export const App: React.FC = () => {
@@ -77,6 +78,7 @@ export const App: React.FC = () => {
       createdAt: formatRelativeTime(item.created_at),
       relatesCount: item.relates_count || 0,
       supportsCount: item.supports_count || 0,
+      songTrackId: item.song_track_id || undefined,
       userReactedRelate: userRelates.has(item.id),
       userReactedSupport: userSupports.has(item.id),
     }),
@@ -156,7 +158,8 @@ export const App: React.FC = () => {
   const handleAddConfession = async (
     pseudonym: string,
     content: string,
-    category: Exclude<CategoryId, 'all'>
+    category: Exclude<CategoryId, 'all'>,
+    songTrackId?: string | null
   ) => {
     const tempId = `c-${Date.now()}`;
     const newConfession: Confession = {
@@ -164,6 +167,7 @@ export const App: React.FC = () => {
       pseudonym,
       content,
       category,
+      songTrackId: songTrackId || undefined,
       createdAt: 'Baru saja',
       relatesCount: 0,
       supportsCount: 0,
@@ -175,18 +179,40 @@ export const App: React.FC = () => {
 
     // Persist to Supabase
     try {
-      const { data, error } = await supabase
+      const payload: Record<string, unknown> = {
+        pseudonym,
+        content,
+        category,
+        relates_count: 0,
+        supports_count: 0,
+      };
+      if (songTrackId) {
+        payload.song_track_id = songTrackId;
+      }
+
+      let { data, error } = await supabase
         .from('confessions')
-        .insert([
-          {
-            pseudonym,
-            content,
-            category,
-            relates_count: 0,
-            supports_count: 0,
-          },
-        ])
+        .insert([payload])
         .select();
+
+      // If column song_track_id doesn't exist yet in Supabase schema, retry without it
+      if (error && songTrackId) {
+        console.warn('Supabase insert with song_track_id failed, attempting fallback insert:', error.message);
+        const fallback = await supabase
+          .from('confessions')
+          .insert([
+            {
+              pseudonym,
+              content,
+              category,
+              relates_count: 0,
+              supports_count: 0,
+            },
+          ])
+          .select();
+        data = fallback.data;
+        error = fallback.error;
+      }
 
       if (!error && data && data.length > 0) {
         const dbId = data[0].id;

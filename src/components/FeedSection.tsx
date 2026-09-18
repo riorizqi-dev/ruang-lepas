@@ -12,6 +12,8 @@ import {
   ShareSvg,
   SearchSvg,
   CheckSvg,
+  PlaySvg,
+  PauseSvg,
 } from './Icons';
 
 interface FeedSectionProps {
@@ -31,6 +33,7 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'mostRelatable'>('newest');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [activePlayingId, setActivePlayingId] = useState<string | null>(null);
 
   const getCategoryIcon = (catId: string, size = 15) => {
     switch (catId) {
@@ -105,6 +108,10 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
     });
   };
 
+  const togglePlay = (id: string) => {
+    setActivePlayingId((prev) => (prev === id ? null : id));
+  };
+
   return (
     <section className="w-full max-w-6xl mx-auto px-4 py-12">
       {/* Section Header */}
@@ -170,6 +177,8 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredConfessions.map((item) => {
             const meta = getCategoryMeta(item.category);
+            const isPlaying = activePlayingId === item.id;
+
             return (
               <article
                 key={item.id}
@@ -197,11 +206,27 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
                   <p className="text-sm text-slate-200 leading-relaxed break-words whitespace-pre-wrap">
                     {item.content}
                   </p>
+
+                  {/* Lazy Loaded Spotify Embed Player (Mounted only when active) */}
+                  {item.songTrackId && isPlaying && (
+                    <div className="mt-4 pt-1">
+                      <iframe
+                        src={`https://open.spotify.com/embed/track/${item.songTrackId}?utm_source=generator&theme=0&autoplay=1`}
+                        width="100%"
+                        height="152"
+                        frameBorder="0"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        loading="lazy"
+                        className="rounded-xl border border-[#232b3a] shadow-lg bg-[#0a0e17]"
+                        title={`Pemutar Spotify untuk curhatan ${item.pseudonym}`}
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {/* Card Actions: Relate, Support, Share */}
+                {/* Card Actions: Relate, Support, Play Spotify, Share */}
                 <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {/* Relate Button */}
                     <button
                       onClick={() => onReactRelate(item.id)}
@@ -235,12 +260,34 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
                       />
                       <span>{item.supportsCount}</span>
                     </button>
+
+                    {/* Spotify Play/Pause Toggle Button (rendered only if post has songTrackId) */}
+                    {item.songTrackId && (
+                      <button
+                        type="button"
+                        onClick={() => togglePlay(item.id)}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                          isPlaying
+                            ? 'bg-sky-500/20 border-[#38bdf8] text-[#38bdf8] shadow-[0_0_12px_rgba(56,189,248,0.25)] ring-1 ring-sky-400/50'
+                            : 'bg-transparent border-slate-700/60 text-slate-300 hover:text-white hover:border-slate-500 hover:bg-slate-800/40'
+                        }`}
+                        title={isPlaying ? 'Hentikan pemutaran lagu' : 'Dengarkan lagu pilihan'}
+                        aria-label={isPlaying ? 'Hentikan pemutaran lagu Spotify' : 'Putar lagu Spotify'}
+                      >
+                        {isPlaying ? (
+                          <PauseSvg size={12} className="text-[#38bdf8]" />
+                        ) : (
+                          <PlaySvg size={12} className="text-sky-400" />
+                        )}
+                        <span>{isPlaying ? 'Playing' : 'Play'}</span>
+                      </button>
+                    )}
                   </div>
 
                   {/* Share Button */}
                   <button
                     onClick={() => handleShare(item)}
-                    className="p-2 rounded-lg bg-slate-900/40 hover:bg-slate-800/60 border border-slate-700/50 text-slate-400 hover:text-white transition-all"
+                    className="p-2 rounded-lg bg-slate-900/40 hover:bg-slate-800/60 border border-slate-700/50 text-slate-400 hover:text-white transition-all flex-shrink-0"
                     title="Bagikan atau salin curhatan"
                   >
                     {copiedId === item.id ? (

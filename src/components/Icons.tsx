@@ -357,3 +357,65 @@ export const GpnLogoSvg: React.FC<IconProps> = ({ size = 28, className = '', ...
     <rect x="23" y="21" width="13" height="6" rx="2" fill="white" />
   </svg>
 );
+
+export const PlaySvg: React.FC<IconProps> = ({ size = 16, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <polygon points="6 3 20 12 6 21 6 3" />
+  </svg>
+);
+
+export const PauseSvg: React.FC<IconProps> = ({ size = 16, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <rect x="6" y="4" width="4" height="16" rx="1" />
+    <rect x="14" y="4" width="4" height="16" rx="1" />
+  </svg>
+);
+
+export const MusicSvg: React.FC<IconProps> = ({ size = 16, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    {...props}
+  >
+    <path d="M9 18V5l12-2v13" />
+    <circle cx="6" cy="18" r="3" />
+    <circle cx="18" cy="16" r="3" />
+  </svg>
+);
+
+export const SpotifyIconSvg: React.FC<IconProps> = ({ size = 18, className = '', ...props }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    {...props}
+  >
+    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 14.424c-.18.295-.563.387-.857.207-2.35-1.435-5.308-1.76-8.792-.963-.335.077-.67-.133-.746-.468-.077-.334.132-.67.467-.746 3.808-.87 7.076-.496 9.72 1.115.295.18.388.563.208.855zm1.225-2.724c-.226.367-.707.482-1.074.256-2.69-1.653-6.79-2.133-9.972-1.168-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 3.633-1.103 8.148-.568 11.242 1.336.367.226.482.707.256 1.074zm.105-2.835C14.692 8.95 9.375 8.775 6.297 9.71c-.495.15-1.02-.13-1.17-.625-.15-.494.13-1.02.625-1.17 3.535-1.073 9.404-.87 13.116 1.333.445.264.59.838.327 1.283-.264.444-.838.59-1.282.327z" />
+  </svg>
+);
