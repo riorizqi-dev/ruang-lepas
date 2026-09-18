@@ -14,6 +14,8 @@ import {
   CheckSvg,
   PlaySvg,
   PauseSvg,
+  SpotifyIconSvg,
+  ChevronDownSvg,
 } from './Icons';
 
 interface FeedSectionProps {
@@ -140,14 +142,19 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
           </div>
 
           {/* Sort Dropdown */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'newest' | 'mostRelatable')}
-            className="px-3.5 py-2 rounded-xl bg-slate-900/60 border border-slate-700/60 text-xs sm:text-sm text-slate-300 focus:border-sky-400/80 transition-all cursor-pointer"
-          >
-            <option value="newest">Terbaru</option>
-            <option value="mostRelatable">Paling Relate</option>
-          </select>
+          <div className="relative min-w-[140px]">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'newest' | 'mostRelatable')}
+              className="w-full appearance-none pl-3.5 pr-8 py-2 rounded-xl bg-slate-900/80 border border-slate-700/70 text-xs sm:text-sm text-slate-200 focus:border-sky-400/80 focus:outline-none transition-all cursor-pointer [&>option]:bg-slate-900 [&>option]:text-slate-100"
+            >
+              <option value="newest">Terbaru</option>
+              <option value="mostRelatable">Paling Relate</option>
+            </select>
+            <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+              <ChevronDownSvg size={14} />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -172,9 +179,9 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
         })}
       </div>
 
-      {/* Confession Cards Grid */}
+      {/* Confession Cards Grid with items-start so neighboring cards never stretch */}
       {filteredConfessions.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           {filteredConfessions.map((item) => {
             const meta = getCategoryMeta(item.category);
             const isPlaying = activePlayingId === item.id;
@@ -209,17 +216,27 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
 
                   {/* Lazy Loaded Spotify Embed Player (Mounted only when active) */}
                   {item.songTrackId && isPlaying && (
-                    <div className="mt-4 pt-1">
-                      <iframe
-                        src={`https://open.spotify.com/embed/track/${item.songTrackId}?utm_source=generator&theme=0&autoplay=1`}
-                        width="100%"
-                        height="152"
-                        frameBorder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                        className="rounded-xl border border-[#232b3a] shadow-lg bg-[#0a0e17]"
-                        title={`Pemutar Spotify untuk curhatan ${item.pseudonym}`}
-                      />
+                    <div className="mt-4 pt-1 animate-fadeIn">
+                      <div className="flex items-center justify-between px-1 py-1 mb-1.5 text-[11px] font-medium text-slate-400">
+                        <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                          <SpotifyIconSvg size={13} />
+                          <span>Lagu Pilihan Penulis</span>
+                        </span>
+                        <span className="text-sky-400 text-[10px] uppercase tracking-wider font-semibold">Sedang Diputar</span>
+                      </div>
+                      <div className="rounded-2xl overflow-hidden border border-sky-500/30 bg-slate-950/90 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                        <iframe
+                          src={`https://open.spotify.com/embed/track/${item.songTrackId}?utm_source=generator&theme=0&autoplay=1`}
+                          width="100%"
+                          height="80"
+                          frameBorder="0"
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          loading="lazy"
+                          className="w-full block"
+                          style={{ height: '80px', minHeight: '80px', border: 'none' }}
+                          title={`Pemutar Spotify untuk curhatan ${item.pseudonym}`}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -266,18 +283,18 @@ export const FeedSection: React.FC<FeedSectionProps> = ({
                       <button
                         type="button"
                         onClick={() => togglePlay(item.id)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                           isPlaying
-                            ? 'bg-sky-500/20 border-[#38bdf8] text-[#38bdf8] shadow-[0_0_12px_rgba(56,189,248,0.25)] ring-1 ring-sky-400/50'
-                            : 'bg-transparent border-slate-700/60 text-slate-300 hover:text-white hover:border-slate-500 hover:bg-slate-800/40'
+                            ? 'bg-sky-500/25 border-sky-400 text-sky-300 shadow-[0_0_12px_rgba(56,189,248,0.3)] ring-1 ring-sky-400/40'
+                            : 'bg-emerald-950/30 border-emerald-500/40 text-emerald-300 hover:text-white hover:border-emerald-400 hover:bg-emerald-900/40'
                         }`}
                         title={isPlaying ? 'Hentikan pemutaran lagu' : 'Dengarkan lagu pilihan'}
                         aria-label={isPlaying ? 'Hentikan pemutaran lagu Spotify' : 'Putar lagu Spotify'}
                       >
                         {isPlaying ? (
-                          <PauseSvg size={12} className="text-[#38bdf8]" />
+                          <PauseSvg size={12} className="text-sky-400" />
                         ) : (
-                          <PlaySvg size={12} className="text-sky-400" />
+                          <PlaySvg size={12} className="text-emerald-400" />
                         )}
                         <span>{isPlaying ? 'Playing' : 'Play'}</span>
                       </button>

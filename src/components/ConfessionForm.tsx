@@ -217,7 +217,7 @@ export const ConfessionForm: React.FC<ConfessionFormProps> = ({ onSubmit }) => {
           </div>
 
           {/* Spotify Track Input (Optional) */}
-          <div className="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 flex flex-col gap-3">
+          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-700/60 flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2">
               <label htmlFor="spotify-input" className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
                 <SpotifyIconSvg size={16} className="text-emerald-400" />
@@ -243,7 +243,7 @@ export const ConfessionForm: React.FC<ConfessionFormProps> = ({ onSubmit }) => {
                 value={spotifyUrl}
                 onChange={(e) => handleSpotifyChange(e.target.value)}
                 placeholder="https://open.spotify.com/track/..."
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700/70 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-sky-400/80 transition-all"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700/70 text-white placeholder-slate-500 text-xs sm:text-sm focus:border-sky-400/80 focus:outline-none transition-all"
               />
             </div>
 
@@ -256,20 +256,24 @@ export const ConfessionForm: React.FC<ConfessionFormProps> = ({ onSubmit }) => {
 
             {/* Live Preview Embed if valid trackId found */}
             {extractedTrackId && (
-              <div className="mt-1 flex flex-col gap-2">
-                <span className="text-[11px] font-semibold text-slate-400">
-                  Pratinjau Pemutar Lagu:
+              <div className="mt-1 flex flex-col gap-1.5">
+                <span className="text-[11px] font-semibold text-sky-400 flex items-center gap-1.5">
+                  <SpotifyIconSvg size={13} className="text-emerald-400" />
+                  <span>Pratinjau Pemutar Lagu:</span>
                 </span>
-                <iframe
-                  src={`https://open.spotify.com/embed/track/${extractedTrackId}?utm_source=generator&theme=0`}
-                  width="100%"
-                  height="152"
-                  frameBorder="0"
-                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  className="rounded-xl border border-[#232b3a] shadow-lg bg-[#0a0e17]"
-                  title="Pratinjau Lagu Spotify"
-                />
+                <div className="rounded-2xl overflow-hidden border border-sky-500/30 bg-slate-950/90 shadow-md">
+                  <iframe
+                    src={`https://open.spotify.com/embed/track/${extractedTrackId}?utm_source=generator&theme=0`}
+                    width="100%"
+                    height="80"
+                    frameBorder="0"
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                    className="w-full block"
+                    style={{ height: '80px', minHeight: '80px', border: 'none' }}
+                    title="Pratinjau Lagu Spotify"
+                  />
+                </div>
               </div>
             )}
           </div>
